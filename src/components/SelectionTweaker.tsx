@@ -1,5 +1,5 @@
 import { useAppStore } from '@/store/useAppStore';
-import { DIMENSIONS, getOptionById } from '@/data';
+import { getOptionById } from '@/data';
 import { Badge } from './ui/badge';
 import type { UserSelection } from '@/types';
 
