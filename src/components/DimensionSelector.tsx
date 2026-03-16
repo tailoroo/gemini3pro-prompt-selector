@@ -1,0 +1,89 @@
+import { useState } from "react"
+import { ChevronDown, ChevronRight } from "lucide-react"
+import { OptionChip } from "./OptionChip"
+import type { Dimension, PromptOption } from "@/types"
+
+export interface DimensionSelectorProps {
+  dimension: Dimension
+  selection: string[]
+  onSelect: (optionId: string) => void
+  language?: "zh" | "en"
+  showCategories?: boolean
+}
+
+export function DimensionSelector({
+  dimension,
+  selection,
+  onSelect,
+  language = "zh",
+  showCategories = false
+}: DimensionSelectorProps) {
+  const [expanded, setExpanded] = useState(true)
+
+  const displayName = language === "en" ? dimension.nameEn : dimension.name
+
+  const toggleExpanded = () => setExpanded(!expanded)
+
+  // Get all options flattened for simple mode
+  const allOptions: (PromptOption & { categoryName?: string })[] = []
+  for (const cat of dimension.categories) {
+    for (const opt of cat.options) {
+      allOptions.push({ ...opt, categoryName: cat.name })
+    }
+  }
+
+  // In simple mode, only show options marked as simple
+  const visibleOptions = showCategories ? allOptions : allOptions.filter(opt => opt.simple)
+
+  if (!showCategories) {
+    return (
+      <div className="space-y-2">
+        <h3 className="font-medium text-sm">{displayName}</h3>
+        <div className="flex flex-wrap gap-2">
+          {visibleOptions.map((option) => (
+            <OptionChip
+              key={option.id}
+              option={option}
+              selected={selection.includes(option.id)}
+              onClick={() => onSelect(option.id)}
+              language={language}
+            />
+          ))}
+        </div>
+      </div>
+    )
+  }
+
+  // Grouped display by categories
+  return (
+    <div className="space-y-2">
+      <button
+        onClick={toggleExpanded}
+        className="flex items-center gap-1 font-medium text-sm hover:text-primary transition-colors"
+      >
+        {expanded ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
+        {displayName}
+      </button>
+      {expanded && (
+        <div className="space-y-3 pl-5">
+          {dimension.categories.map((category) => (
+            <div key={category.category} className="space-y-1">
+              <span className="text-xs text-muted-foreground">{category.name}</span>
+              <div className="flex flex-wrap gap-2">
+                {category.options.map((option) => (
+                  <OptionChip
+                    key={option.id}
+                    option={option}
+                    selected={selection.includes(option.id)}
+                    onClick={() => onSelect(option.id)}
+                    language={language}
+                  />
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
