@@ -26,7 +26,7 @@ export function DimensionSelector({
 
   // 使用外部控制或内部状态
   const isExpanded = onToggleExpanded ? expanded : internalExpanded
-  const toggleExpanded = onToggleExpanded || (() => setInternalExpanded(!internalExpanded))
+  const handleToggle = onToggleExpanded || (() => setInternalExpanded(!internalExpanded))
 
   const displayName = language === "en" ? dimension.nameEn : dimension.name
 
@@ -64,13 +64,13 @@ export function DimensionSelector({
   return (
     <div className="space-y-2">
       <button
-        onClick={toggleExpanded}
+        onClick={handleToggle}
         className="flex items-center gap-1 font-medium text-sm text-slate-300 hover:text-purple-400 transition-colors"
       >
-        {expanded ? <ChevronDown className="h-4 w-4 text-purple-400" /> : <ChevronRight className="h-4 w-4 text-slate-500" />}
+        {isExpanded ? <ChevronDown className="h-4 w-4 text-purple-400" /> : <ChevronRight className="h-4 w-4 text-slate-500" />}
         {displayName}
       </button>
-      {expanded && (
+      {isExpanded && (
         <div className="space-y-3 pl-5">
           {dimension.categories.map((category) => (
             <div key={category.category} className="space-y-1">

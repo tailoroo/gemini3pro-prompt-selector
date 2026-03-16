@@ -6,7 +6,6 @@ import type { Preset, SubPreset } from '@/data/presets';
 import { ChevronRight, ChevronDown } from 'lucide-react';
 
 interface PresetSidebarProps {
-  selectedCategory: string | null;
   selectedPreset: string | null;
   selectedSubPreset: string | null;
   onSelectCategory: (categoryId: string) => void;
@@ -153,7 +152,6 @@ function CategorySection({
 }
 
 export function PresetSidebar({
-  selectedCategory,
   selectedPreset,
   selectedSubPreset,
   onSelectCategory,

@@ -77,7 +77,6 @@ export default function App() {
           <div className="lg:col-span-4">
             <div className="sticky top-[200px]">
               <PresetSidebar
-                selectedCategory={selectedCategory}
                 selectedPreset={selectedPreset}
                 selectedSubPreset={selectedSubPreset}
                 onSelectCategory={handleSelectCategory}
