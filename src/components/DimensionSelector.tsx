@@ -9,6 +9,8 @@ export interface DimensionSelectorProps {
   onSelect: (optionId: string) => void
   language?: "zh" | "en"
   showCategories?: boolean
+  expanded?: boolean
+  onToggleExpanded?: () => void
 }
 
 export function DimensionSelector({
@@ -16,13 +18,17 @@ export function DimensionSelector({
   selection,
   onSelect,
   language = "zh",
-  showCategories = false
+  showCategories = false,
+  expanded = false,
+  onToggleExpanded
 }: DimensionSelectorProps) {
-  const [expanded, setExpanded] = useState(true)
+  const [internalExpanded, setInternalExpanded] = useState(false)
+
+  // 使用外部控制或内部状态
+  const isExpanded = onToggleExpanded ? expanded : internalExpanded
+  const toggleExpanded = onToggleExpanded || (() => setInternalExpanded(!internalExpanded))
 
   const displayName = language === "en" ? dimension.nameEn : dimension.name
-
-  const toggleExpanded = () => setExpanded(!expanded)
 
   // Get all options flattened for simple mode
   const allOptions: (PromptOption & { categoryName?: string })[] = []
@@ -38,7 +44,7 @@ export function DimensionSelector({
   if (!showCategories) {
     return (
       <div className="space-y-2">
-        <h3 className="font-medium text-sm">{displayName}</h3>
+        <h3 className="font-medium text-sm text-slate-300">{displayName}</h3>
         <div className="flex flex-wrap gap-2">
           {visibleOptions.map((option) => (
             <OptionChip
@@ -59,16 +65,16 @@ export function DimensionSelector({
     <div className="space-y-2">
       <button
         onClick={toggleExpanded}
-        className="flex items-center gap-1 font-medium text-sm hover:text-primary transition-colors"
+        className="flex items-center gap-1 font-medium text-sm text-slate-300 hover:text-purple-400 transition-colors"
       >
-        {expanded ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
+        {expanded ? <ChevronDown className="h-4 w-4 text-purple-400" /> : <ChevronRight className="h-4 w-4 text-slate-500" />}
         {displayName}
       </button>
       {expanded && (
         <div className="space-y-3 pl-5">
           {dimension.categories.map((category) => (
             <div key={category.category} className="space-y-1">
-              <span className="text-xs text-muted-foreground">{category.name}</span>
+              <span className="text-xs text-slate-500">{category.name}</span>
               <div className="flex flex-wrap gap-2">
                 {category.options.map((option) => (
                   <OptionChip

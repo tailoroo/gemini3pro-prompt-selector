@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { cn } from '@/lib/utils';
 import { CATEGORIES, getPresetsByCategory } from '@/data';
 import type { Category } from '@/data/categories';
@@ -26,11 +27,10 @@ function SubPresetItem({
     <button
       onClick={onClick}
       className={cn(
-        "w-full text-left px-3 py-2 rounded-md text-sm transition-all duration-200",
-        "hover:bg-accent",
+        "w-full text-left px-3 py-2 rounded-lg text-sm transition-all duration-200",
         isSelected
-          ? "bg-primary text-primary-foreground"
-          : "bg-muted/50"
+          ? "bg-gradient-to-r from-violet-500 to-purple-500 text-white shadow-lg shadow-purple-500/30"
+          : "bg-white/5 text-slate-300 hover:bg-white/10 hover:text-white"
       )}
     >
       {subPreset.name}
@@ -56,21 +56,21 @@ function PresetItem({
       <button
         onClick={onToggle}
         className={cn(
-          "w-full flex items-center gap-2 px-3 py-2 rounded-md text-sm transition-all duration-200",
-          "hover:bg-accent",
-          isExpanded && "bg-accent/50"
+          "w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-all duration-200",
+          "text-slate-300 hover:bg-white/10 hover:text-white",
+          isExpanded && "bg-white/5 text-white"
         )}
       >
         {isExpanded ? (
-          <ChevronDown className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+          <ChevronDown className="h-4 w-4 text-purple-400 flex-shrink-0" />
         ) : (
-          <ChevronRight className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+          <ChevronRight className="h-4 w-4 text-slate-500 flex-shrink-0" />
         )}
         <span className="truncate">{preset.name}</span>
       </button>
 
       {isExpanded && (
-        <div className="ml-4 mt-1 space-y-1 border-l-2 border-border pl-2">
+        <div className="ml-4 mt-1 space-y-1 border-l-2 border-purple-500/30 pl-2">
           {preset.subPresets.map((subPreset) => (
             <SubPresetItem
               key={subPreset.id}
@@ -106,28 +106,28 @@ function CategorySection({
   const presets = getPresetsByCategory(category.id);
 
   return (
-    <div className="border rounded-lg overflow-hidden bg-card">
+    <div className="rounded-xl overflow-hidden bg-white/[0.08] backdrop-blur-xl border border-white/10 transition-all duration-300 hover:border-purple-500/30">
       {/* 分类标题 */}
       <button
         onClick={onToggleCategory}
         className={cn(
           "w-full flex items-center gap-3 px-4 py-3 text-left transition-colors",
-          "hover:bg-accent",
-          isExpanded && "bg-accent/50"
+          "hover:bg-white/5",
+          isExpanded && "bg-white/5"
         )}
       >
         {isExpanded ? (
-          <ChevronDown className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+          <ChevronDown className="h-4 w-4 text-purple-400 flex-shrink-0" />
         ) : (
-          <ChevronRight className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+          <ChevronRight className="h-4 w-4 text-slate-500 flex-shrink-0" />
         )}
         <Icon className={cn(
           "h-5 w-5 flex-shrink-0",
-          isExpanded ? "text-primary" : "text-muted-foreground"
+          isExpanded ? "text-purple-400" : "text-slate-400"
         )} />
         <div className="flex-1 min-w-0">
-          <div className="font-medium truncate">{category.name}</div>
-          <div className="text-xs text-muted-foreground truncate">
+          <div className="font-medium text-slate-200 truncate">{category.name}</div>
+          <div className="text-xs text-slate-500 truncate">
             {category.description}
           </div>
         </div>
@@ -135,7 +135,7 @@ function CategorySection({
 
       {/* 展开的预设列表 */}
       {isExpanded && (
-        <div className="border-t bg-muted/20 py-2">
+        <div className="border-t border-white/10 bg-black/20 py-2">
           {presets.map((preset) => (
             <PresetItem
               key={preset.id}
@@ -160,25 +160,60 @@ export function PresetSidebar({
   onSelectPreset,
   onSelectSubPreset
 }: PresetSidebarProps) {
+  // 使用本地状态管理展开的分类（支持多个同时展开）
+  const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set());
+
   const handleToggleCategory = (categoryId: string) => {
-    if (selectedCategory === categoryId) {
-      // 如果点击已展开的分类，收起它
-      onSelectCategory('');
-    } else {
-      onSelectCategory(categoryId);
-    }
+    setExpandedCategories((prev) => {
+      const newSet = new Set(prev);
+      if (newSet.has(categoryId)) {
+        newSet.delete(categoryId);
+      } else {
+        newSet.add(categoryId);
+        // 通知父组件当前选中的分类（用于预设选择）
+        onSelectCategory(categoryId);
+      }
+      return newSet;
+    });
+  };
+
+  // 全部展开
+  const expandAll = () => {
+    setExpandedCategories(new Set(CATEGORIES.map(c => c.id)));
+  };
+
+  // 全部收起
+  const collapseAll = () => {
+    setExpandedCategories(new Set());
   };
 
   return (
-    <div className="space-y-2">
-      <h2 className="text-lg font-semibold px-1 mb-4">预设选择</h2>
+    <div className="space-y-3">
+      <div className="flex items-center justify-between px-1 mb-4">
+        <h2 className="text-lg font-semibold bg-gradient-to-r from-violet-300 via-purple-300 to-pink-300 bg-clip-text text-transparent">预设选择</h2>
+        <div className="flex gap-1">
+          <button
+            onClick={expandAll}
+            className="text-xs text-slate-400 hover:text-purple-400 transition-colors px-2 py-1 rounded hover:bg-white/5"
+          >
+            全部展开
+          </button>
+          <span className="text-slate-600">|</span>
+          <button
+            onClick={collapseAll}
+            className="text-xs text-slate-400 hover:text-purple-400 transition-colors px-2 py-1 rounded hover:bg-white/5"
+          >
+            全部收起
+          </button>
+        </div>
+      </div>
       {CATEGORIES.map((category) => (
         <CategorySection
           key={category.id}
           category={category}
           selectedPreset={selectedPreset}
           selectedSubPreset={selectedSubPreset}
-          isExpanded={selectedCategory === category.id}
+          isExpanded={expandedCategories.has(category.id)}
           onToggleCategory={() => handleToggleCategory(category.id)}
           onSelectPreset={onSelectPreset}
           onSelectSubPreset={onSelectSubPreset}

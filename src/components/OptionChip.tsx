@@ -14,7 +14,7 @@ export function OptionChip({ option, selected, onClick, language = "zh" }: Optio
     <Badge
       variant={selected ? "default" : "outline"}
       onClick={onClick}
-      className="cursor-pointer hover:bg-primary/80 transition-colors"
+      className="cursor-pointer"
     >
       {label}
     </Badge>

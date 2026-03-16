@@ -12,36 +12,86 @@ interface DimensionPanelProps {
 
 export function DimensionPanel({ selection, onToggleOption }: DimensionPanelProps) {
   const [isAdvancedMode, setIsAdvancedMode] = useState(false);
+  // 管理展开的维度
+  const [expandedDimensions, setExpandedDimensions] = useState<Set<string>>(new Set());
 
   const dimensions = isAdvancedMode ? ADVANCED_MODE_DIMENSIONS : SIMPLE_MODE_DIMENSIONS;
 
+  // 切换单个维度展开状态
+  const toggleDimension = (key: string) => {
+    setExpandedDimensions((prev) => {
+      const newSet = new Set(prev);
+      if (newSet.has(key)) {
+        newSet.delete(key);
+      } else {
+        newSet.add(key);
+      }
+      return newSet;
+    });
+  };
+
+  // 全部展开
+  const expandAll = () => {
+    setExpandedDimensions(new Set(dimensions.map(d => d.key)));
+  };
+
+  // 全部收起
+  const collapseAll = () => {
+    setExpandedDimensions(new Set());
+  };
+
+  // 切换模式时重置展开状态
+  const handleModeChange = (advanced: boolean) => {
+    setIsAdvancedMode(advanced);
+    setExpandedDimensions(new Set());
+  };
+
   return (
-    <div className="rounded-lg border bg-card">
+    <div className="rounded-xl bg-white/[0.08] backdrop-blur-xl border border-white/10 transition-all duration-300 hover:border-purple-500/30">
       {/* 顶部模式切换 */}
-      <div className="border-b px-4 py-3 flex items-center justify-between">
+      <div className="border-b border-white/10 px-4 py-3 flex items-center justify-between">
         <div>
-          <h3 className="font-medium">提示词维度选择</h3>
-          <p className="text-xs text-muted-foreground mt-1">
+          <h3 className="font-medium text-slate-200">提示词维度选择</h3>
+          <p className="text-xs text-slate-500 mt-1">
             点击标签选择/取消选择
           </p>
         </div>
-        <div className="flex items-center gap-2">
-          <span className={cn(
-            "text-sm",
-            !isAdvancedMode ? "text-primary font-medium" : "text-muted-foreground"
-          )}>
-            简单
-          </span>
-          <Switch
-            checked={isAdvancedMode}
-            onCheckedChange={setIsAdvancedMode}
-          />
-          <span className={cn(
-            "text-sm",
-            isAdvancedMode ? "text-primary font-medium" : "text-muted-foreground"
-          )}>
-            高级
-          </span>
+        <div className="flex items-center gap-4">
+          {/* 全部展开/收起按钮 */}
+          <div className="flex gap-1">
+            <button
+              onClick={expandAll}
+              className="text-xs text-slate-400 hover:text-purple-400 transition-colors px-2 py-1 rounded hover:bg-white/5"
+            >
+              全部展开
+            </button>
+            <span className="text-slate-600">|</span>
+            <button
+              onClick={collapseAll}
+              className="text-xs text-slate-400 hover:text-purple-400 transition-colors px-2 py-1 rounded hover:bg-white/5"
+            >
+              全部收起
+            </button>
+          </div>
+          {/* 模式切换 */}
+          <div className="flex items-center gap-2">
+            <span className={cn(
+              "text-sm transition-colors",
+              !isAdvancedMode ? "text-purple-400 font-medium" : "text-slate-500"
+            )}>
+              简单
+            </span>
+            <Switch
+              checked={isAdvancedMode}
+              onCheckedChange={handleModeChange}
+            />
+            <span className={cn(
+              "text-sm transition-colors",
+              isAdvancedMode ? "text-purple-400 font-medium" : "text-slate-500"
+            )}>
+              高级
+            </span>
+          </div>
         </div>
       </div>
 
@@ -58,6 +108,8 @@ export function DimensionPanel({ selection, onToggleOption }: DimensionPanelProp
               selection={Array.isArray(currentSelection) ? currentSelection : []}
               onSelect={(optionId) => onToggleOption(dimension.key, optionId)}
               showCategories={isAdvancedMode}
+              expanded={expandedDimensions.has(dimension.key)}
+              onToggleExpanded={() => toggleDimension(dimension.key)}
             />
           );
         })}
