@@ -22,6 +22,7 @@ export default function App() {
 
   // AI 优化状态
   const [optimizedPrompt, setOptimizedPrompt] = useState<string | null>(null)
+  const [aiInput, setAiInput] = useState('') // AI 输入框内容
 
   // 实际显示的提示词（优先使用优化后的）
   const displayPrompt = optimizedPrompt || prompt
@@ -34,6 +35,11 @@ export default function App() {
   // 恢复原始提示词
   const handleRestoreOriginal = () => {
     setOptimizedPrompt(null)
+  }
+
+  // 发送提示词到 AI 优化框
+  const handleSendToAI = () => {
+    setAiInput(prompt)
   }
 
   const handleSelectCategory = (categoryId: string) => {
@@ -84,12 +90,15 @@ export default function App() {
               prompt={displayPrompt}
               isOptimized={!!optimizedPrompt}
               onRestoreOriginal={handleRestoreOriginal}
+              onSendToAI={handleSendToAI}
             />
 
             {/* 右栏：AI 优化面板 */}
             <ChatPanel
               currentPrompt={prompt}
               onApplyPrompt={handleApplyPrompt}
+              inputValue={aiInput}
+              onInputChange={setAiInput}
             />
           </div>
 

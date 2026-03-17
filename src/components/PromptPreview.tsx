@@ -1,4 +1,4 @@
-import { Copy, Check, RotateCcw, Sparkles } from "lucide-react"
+import { Copy, Check, RotateCcw, Sparkles, Send } from "lucide-react"
 import { Button } from "./ui/button"
 import { Card, CardHeader, CardTitle, CardContent } from "./ui/card"
 import { Textarea } from "./ui/textarea"
@@ -8,9 +8,10 @@ export interface PromptPreviewProps {
   prompt: string
   isOptimized?: boolean
   onRestoreOriginal?: () => void
+  onSendToAI?: () => void
 }
 
-export function PromptPreview({ prompt, isOptimized, onRestoreOriginal }: PromptPreviewProps) {
+export function PromptPreview({ prompt, isOptimized, onRestoreOriginal, onSendToAI }: PromptPreviewProps) {
   const [copied, setCopied] = useState(false)
 
   const handleCopy = async () => {
@@ -43,6 +44,18 @@ export function PromptPreview({ prompt, isOptimized, onRestoreOriginal }: Prompt
             >
               <RotateCcw className="h-4 w-4" />
               恢复原始
+            </Button>
+          )}
+          {onSendToAI && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={onSendToAI}
+              className="gap-2 border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/10"
+              disabled={!prompt}
+            >
+              <Send className="h-4 w-4" />
+              发送到AI
             </Button>
           )}
           <Button

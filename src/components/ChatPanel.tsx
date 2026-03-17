@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { Sparkles, Loader2, Copy, Check } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Sparkles, Loader2, Copy, Check, CheckCircle } from 'lucide-react';
 import { Button } from './ui/button';
 import { Card, CardHeader, CardTitle, CardContent } from './ui/card';
 import { Textarea } from './ui/textarea';
@@ -8,17 +8,33 @@ import { sendMessage } from '@/services/chatService';
 import type { ChatMessage as ChatMessageType } from '@/types/chat';
 
 interface ChatPanelProps {
-  currentPrompt: string;
-  onApplyPrompt: (prompt: string) => void;
+  currentPrompt?: string;
+  onApplyPrompt?: (prompt: string) => void;
+  inputValue?: string;
+  onInputChange?: (value: string) => void;
 }
 
 export function ChatPanel({
-  currentPrompt: _currentPrompt,
-  onApplyPrompt: _onApplyPrompt
+  currentPrompt,
+  onApplyPrompt,
+  inputValue: externalInputValue = '',
+  onInputChange: externalOnInputChange
 }: ChatPanelProps) {
-  const [inputValue, setInputValue] = useState('');
+  const [internalInputValue, setInternalInputValue] = useState('');
   const [optimizedResult, setOptimizedResult] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
+
+  // 当 currentPrompt 变化且没有外部输入控制时，用其初始化输入框
+  useEffect(() => {
+    if (currentPrompt && currentPrompt.trim() && !externalOnInputChange && !internalInputValue) {
+      setInternalInputValue(currentPrompt);
+    }
+  }, [currentPrompt, externalOnInputChange, internalInputValue]);
+
+  // 使用外部值或内部值
+  const inputValue = externalOnInputChange ? externalInputValue : internalInputValue;
+  const setInputValue = externalOnInputChange || setInternalInputValue;
+
   const {
     isLoading,
     error,
@@ -134,22 +150,32 @@ export function ChatPanel({
                 {optimizedResult}
               </div>
             </div>
-            <Button
-              onClick={handleCopy}
-              className="w-full gap-2 bg-gradient-to-r from-violet-500 to-purple-500 hover:from-violet-600 hover:to-purple-600"
-            >
-              {copied ? (
-                <>
-                  <Check className="w-4 h-4" />
-                  已复制!
-                </>
-              ) : (
-                <>
-                  <Copy className="w-4 h-4" />
-                  复制提示词
-                </>
-              )}
-            </Button>
+            <div className="flex gap-2">
+              <Button
+                onClick={() => onApplyPrompt && onApplyPrompt(optimizedResult!)}
+                className="flex-1 gap-2 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600"
+                disabled={!optimizedResult}
+              >
+                <CheckCircle className="w-4 h-4" />
+                应用
+              </Button>
+              <Button
+                onClick={handleCopy}
+                className="flex-1 gap-2 bg-gradient-to-r from-violet-500 to-purple-500 hover:from-violet-600 hover:to-purple-600"
+              >
+                {copied ? (
+                  <>
+                    <Check className="w-4 h-4" />
+                    已复制!
+                  </>
+                ) : (
+                  <>
+                    <Copy className="w-4 h-4" />
+                    复制提示词
+                  </>
+                )}
+              </Button>
+            </div>
           </div>
         )}
       </CardContent>
