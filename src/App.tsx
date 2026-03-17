@@ -1,6 +1,8 @@
+import { useState } from 'react'
 import { PromptPreview } from './components/PromptPreview'
 import { PresetSidebar } from './components/PresetSidebar'
 import { DimensionPanel } from './components/DimensionPanel'
+import { ChatPanel } from './components/ChatPanel'
 import { useAppStore } from './store/useAppStore'
 import { usePromptGenerator } from './hooks/usePromptGenerator'
 
@@ -18,6 +20,28 @@ export default function App() {
   } = useAppStore()
 
   const { prompt, negativePrompt } = usePromptGenerator()
+
+  // AI 优化状态
+  const [optimizedPrompt, setOptimizedPrompt] = useState<string | null>(null)
+
+  // 实际显示的提示词（优先使用优化后的）
+  const displayPrompt = optimizedPrompt || prompt
+
+  // 当选择改变时清除优化结果
+  const handleClearAll = () => {
+    clearAll()
+    setOptimizedPrompt(null)
+  }
+
+  // 应用 AI 优化的提示词
+  const handleApplyPrompt = (newPrompt: string) => {
+    setOptimizedPrompt(newPrompt)
+  }
+
+  // 恢复原始提示词
+  const handleRestoreOriginal = () => {
+    setOptimizedPrompt(null)
+  }
 
   const handleSelectCategory = (categoryId: string) => {
     if (selectedCategory === categoryId) {
@@ -60,7 +84,24 @@ export default function App() {
       {/* 内容区域 */}
       <div className="sticky top-0 z-20 bg-black/30 backdrop-blur-xl border-b border-white/10 px-4 py-4">
         <div className="max-w-7xl mx-auto relative z-10">
-          <PromptPreview prompt={prompt} onClear={clearAll} />
+          {/* 左右两栏布局：提示词预览 + AI 优化 */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            {/* 左栏：提示词预览 */}
+            <PromptPreview
+              prompt={displayPrompt}
+              onClear={handleClearAll}
+              isOptimized={!!optimizedPrompt}
+              onRestoreOriginal={handleRestoreOriginal}
+            />
+
+            {/* 右栏：AI 优化面板 */}
+            <ChatPanel
+              currentPrompt={prompt}
+              onApplyPrompt={handleApplyPrompt}
+            />
+          </div>
+
+          {/* 负面提示词 */}
           {negativePrompt && (
             <div className="mt-3 rounded-xl bg-white/[0.08] backdrop-blur-xl border border-white/10 p-3 transition-all duration-300 hover:border-purple-500/30">
               <h3 className="font-medium text-sm text-slate-400 mb-1">负面提示词</h3>
@@ -70,12 +111,12 @@ export default function App() {
         </div>
       </div>
 
-      {/* 两栏布局 */}
+      {/* 两栏布局：预设选择 + 维度选择 */}
       <div className="max-w-7xl mx-auto px-4 py-6 relative z-10">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
           {/* 左栏：预设选择 */}
           <div className="lg:col-span-4">
-            <div className="sticky top-[200px]">
+            <div className="sticky top-[340px]">
               <PresetSidebar
                 selectedPreset={selectedPreset}
                 selectedSubPreset={selectedSubPreset}
