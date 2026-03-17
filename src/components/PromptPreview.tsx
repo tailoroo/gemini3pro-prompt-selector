@@ -92,7 +92,7 @@ export const PromptPreview = memo(function PromptPreview({ prompt, isOptimized, 
           ref={textareaRef}
           value={prompt}
           readOnly
-          rows={1}
+          rows={2}
           placeholder="请选择分类和预设来生成提示词..."
           className="w-full font-mono text-sm resize-none overflow-hidden bg-transparent border border-white/10 rounded-md px-3 py-2 text-slate-200 placeholder:text-slate-500 focus:outline-none focus:ring-1 focus:ring-white/20"
         />

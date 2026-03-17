@@ -131,7 +131,7 @@ export function ChatPanel({
           value={inputValue}
           onChange={(e) => setInputValue(e.target.value)}
           placeholder="输入提示词或优化需求..."
-          rows={1}
+          rows={2}
           className="w-full font-mono text-sm resize-none overflow-hidden bg-transparent border border-white/10 rounded-md px-3 py-2 text-slate-200 placeholder:text-slate-500 focus:outline-none focus:ring-1 focus:ring-white/20 disabled:opacity-50"
           disabled={isLoading}
         />
