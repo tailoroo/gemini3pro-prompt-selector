@@ -153,8 +153,8 @@ function CategorySection({
 
 export function PresetSidebar({
   selectedSubPreset,
-  onSelectCategory: _onSelectCategory,
-  onSelectPreset: _onSelectPreset,
+  onSelectCategory,
+  onSelectPreset,
   onSelectSubPreset
 }: PresetSidebarProps) {
   // 使用本地状态管理展开的分类
@@ -170,6 +170,8 @@ export function PresetSidebar({
         newSet.delete(categoryId);
       } else {
         newSet.add(categoryId);
+        // 展开时通知父组件更新 selectedCategory
+        onSelectCategory(categoryId);
       }
       return newSet;
     });
@@ -183,6 +185,8 @@ export function PresetSidebar({
         newSet.delete(presetId);
       } else {
         newSet.add(presetId);
+        // 展开时通知父组件更新 selectedPreset
+        onSelectPreset(presetId);
       }
       return newSet;
     });
