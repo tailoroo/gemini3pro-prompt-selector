@@ -154,7 +154,7 @@ function CategorySection({
 export function PresetSidebar({
   selectedPreset,
   selectedSubPreset,
-  onSelectCategory,
+  onSelectCategory: _onSelectCategory,
   onSelectPreset,
   onSelectSubPreset
 }: PresetSidebarProps) {
@@ -168,8 +168,6 @@ export function PresetSidebar({
         newSet.delete(categoryId);
       } else {
         newSet.add(categoryId);
-        // 通知父组件当前选中的分类（用于预设选择）
-        onSelectCategory(categoryId);
       }
       return newSet;
     });

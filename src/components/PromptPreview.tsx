@@ -25,7 +25,7 @@ export function PromptPreview({ prompt, onClear, isOptimized, onRestoreOriginal 
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
         <div className="flex items-center gap-2">
           <CardTitle className="text-lg bg-gradient-to-r from-violet-300 via-purple-300 to-pink-300 bg-clip-text text-transparent">
-            {isOptimized ? 'AI 优化提示词' : '生成的提示词'}
+            {isOptimized ? 'AI 优化提示词' : '预设提示词'}
           </CardTitle>
           {isOptimized && (
             <span className="flex items-center gap-1 px-2 py-0.5 text-xs bg-emerald-500/20 text-emerald-400 rounded-full">

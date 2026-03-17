@@ -14,7 +14,7 @@ interface ChatPanelProps {
 
 export function ChatPanel({
   currentPrompt,
-  onApplyPrompt
+  onApplyPrompt: _onApplyPrompt
 }: ChatPanelProps) {
   const [inputValue, setInputValue] = useState(currentPrompt);
   const [optimizedResult, setOptimizedResult] = useState<string | null>(null);
@@ -66,10 +66,10 @@ export function ChatPanel({
     }
   };
 
-  // 应用优化结果
+  // 应用优化结果到输入框
   const handleApply = () => {
     if (optimizedResult) {
-      onApplyPrompt(optimizedResult);
+      setInputValue(optimizedResult);
       setOptimizedResult(null);
     }
   };

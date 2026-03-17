@@ -44,18 +44,26 @@ export function DimensionSelector({
   if (!showCategories) {
     return (
       <div className="space-y-2">
-        <h3 className="font-medium text-sm text-slate-300">{displayName}</h3>
-        <div className="flex flex-wrap gap-2">
-          {visibleOptions.map((option) => (
-            <OptionChip
-              key={option.id}
-              option={option}
-              selected={selection.includes(option.id)}
-              onClick={() => onSelect(option.id)}
-              language={language}
-            />
-          ))}
-        </div>
+        <button
+          onClick={handleToggle}
+          className="flex items-center gap-1 font-medium text-sm text-slate-300 hover:text-purple-400 transition-colors"
+        >
+          {isExpanded ? <ChevronDown className="h-4 w-4 text-purple-400" /> : <ChevronRight className="h-4 w-4 text-slate-500" />}
+          {displayName}
+        </button>
+        {isExpanded && (
+          <div className="flex flex-wrap gap-2">
+            {visibleOptions.map((option) => (
+              <OptionChip
+                key={option.id}
+                option={option}
+                selected={selection.includes(option.id)}
+                onClick={() => onSelect(option.id)}
+                language={language}
+              />
+            ))}
+          </div>
+        )}
       </div>
     )
   }
