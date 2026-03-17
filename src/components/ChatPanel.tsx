@@ -16,7 +16,7 @@ interface ChatPanelProps {
 
 export function ChatPanel({
   currentPrompt,
-  onApplyPrompt,
+  onApplyPrompt: _onApplyPrompt,
   inputValue: externalInputValue = '',
   onInputChange: externalOnInputChange
 }: ChatPanelProps) {
