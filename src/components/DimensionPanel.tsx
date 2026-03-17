@@ -104,7 +104,7 @@ export function DimensionPanel({ selection, onToggleOption }: DimensionPanelProp
       </div>
 
       {/* 维度列表 */}
-      <div className="p-4 space-y-6">
+      <div className="p-4 space-y-6 max-h-[60vh] overflow-y-auto">
         {dimensions.map((dimension) => {
           const dimensionKey = dimension.key as keyof UserSelection;
           const currentSelection = selection[dimensionKey];
