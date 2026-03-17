@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Sparkles, Loader2, Copy, Check, CheckCircle } from 'lucide-react';
+import { Sparkles, Loader2, Copy, Check } from 'lucide-react';
 import { Button } from './ui/button';
 import { Card, CardHeader, CardTitle, CardContent } from './ui/card';
 import { Textarea } from './ui/textarea';
@@ -151,14 +151,6 @@ export function ChatPanel({
               </div>
             </div>
             <div className="flex gap-2">
-              <Button
-                onClick={() => onApplyPrompt && onApplyPrompt(optimizedResult!)}
-                className="flex-1 gap-2 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600"
-                disabled={!optimizedResult}
-              >
-                <CheckCircle className="w-4 h-4" />
-                应用
-              </Button>
               <Button
                 onClick={handleCopy}
                 className="flex-1 gap-2 bg-gradient-to-r from-violet-500 to-purple-500 hover:from-violet-600 hover:to-purple-600"

@@ -1,3 +1,4 @@
+import { memo } from "react"
 import { Badge } from "./ui/badge"
 import type { PromptOption } from "@/types"
 
@@ -8,7 +9,7 @@ export interface OptionChipProps {
   language?: "zh" | "en"
 }
 
-export function OptionChip({ option, selected, onClick, language = "zh" }: OptionChipProps) {
+export const OptionChip = memo(function OptionChip({ option, selected, onClick, language = "zh" }: OptionChipProps) {
   const label = language === "en" ? option.en : option.zh
   return (
     <Badge
@@ -19,4 +20,4 @@ export function OptionChip({ option, selected, onClick, language = "zh" }: Optio
       {label}
     </Badge>
   )
-}
+})

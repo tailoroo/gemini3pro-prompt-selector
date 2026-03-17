@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { memo, useState, useMemo } from "react"
 import { ChevronDown, ChevronRight } from "lucide-react"
 import { OptionChip } from "./OptionChip"
 import type { Dimension, PromptOption } from "@/types"
@@ -13,7 +13,7 @@ export interface DimensionSelectorProps {
   onToggleExpanded?: () => void
 }
 
-export function DimensionSelector({
+export const DimensionSelector = memo(function DimensionSelector({
   dimension,
   selection,
   onSelect,
@@ -30,16 +30,20 @@ export function DimensionSelector({
 
   const displayName = language === "en" ? dimension.nameEn : dimension.name
 
-  // Get all options flattened for simple mode
-  const allOptions: (PromptOption & { categoryName?: string })[] = []
-  for (const cat of dimension.categories) {
-    for (const opt of cat.options) {
-      allOptions.push({ ...opt, categoryName: cat.name })
-    }
-  }
+  // 缓存扁平化的选项列表，避免每次渲染重新计算
+  const allOptions = useMemo<(PromptOption & { categoryName?: string })[]>(() => {
+    return dimension.categories.flatMap(cat =>
+      cat.options.map(opt => ({ ...opt, categoryName: cat.name }))
+    )
+  }, [dimension])
 
-  // In simple mode, only show options marked as simple
-  const visibleOptions = showCategories ? allOptions : allOptions.filter(opt => opt.simple)
+  // 缓存简单模式的可见选项
+  const simpleOptions = useMemo(
+    () => allOptions.filter(opt => opt.simple),
+    [allOptions]
+  )
+
+  const visibleOptions = showCategories ? allOptions : simpleOptions
 
   if (!showCategories) {
     return (
@@ -100,4 +104,4 @@ export function DimensionSelector({
       )}
     </div>
   )
-}
+})

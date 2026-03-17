@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useMemo, useCallback } from 'react'
 import { PromptPreview } from './components/PromptPreview'
 import { PresetSidebar } from './components/PresetSidebar'
 import { DimensionPanel } from './components/DimensionPanel'
@@ -27,38 +27,44 @@ export default function App() {
   // 实际显示的提示词（优先使用优化后的）
   const displayPrompt = optimizedPrompt || prompt
 
-  // 应用 AI 优化的提示词
-  const handleApplyPrompt = (newPrompt: string) => {
+  // 星星位置在挂载时固定，避免每次渲染重新随机
+  const stars = useMemo(() =>
+    [...Array(15)].map((_, i) => ({
+      id: i,
+      top: Math.random() * 100,
+      left: Math.random() * 100,
+      delay: Math.random() * 3,
+    })),
+    []
+  )
+
+  const handleApplyPrompt = useCallback((newPrompt: string) => {
     setOptimizedPrompt(newPrompt)
-  }
+  }, [])
 
-  // 恢复原始提示词
-  const handleRestoreOriginal = () => {
+  const handleRestoreOriginal = useCallback(() => {
     setOptimizedPrompt(null)
-  }
+  }, [])
 
-  // 发送提示词到 AI 优化框
-  const handleSendToAI = () => {
+  const handleSendToAI = useCallback(() => {
     setAiInput(prompt)
-  }
+  }, [prompt])
 
-  const handleSelectCategory = (categoryId: string) => {
+  const handleSelectCategory = useCallback((categoryId: string) => {
     if (!categoryId || selectedCategory === categoryId) {
-      // 如果传入空字符串或点击已选中的分类，收起它
       setCategory(null)
     } else {
       setCategory(categoryId)
     }
-  }
+  }, [selectedCategory, setCategory])
 
-  const handleSelectPreset = (presetId: string, categoryId?: string) => {
+  const handleSelectPreset = useCallback((presetId: string, categoryId?: string) => {
     if (selectedPreset === presetId) {
-      // 如果点击已展开的预设，收起它
       setPreset('')
     } else {
       setPreset(presetId, categoryId)
     }
-  }
+  }, [selectedPreset, setPreset])
 
   return (
     <div className="min-h-screen bg-background relative overflow-hidden">
@@ -67,14 +73,14 @@ export default function App() {
       <div className="orb orb-1" />
       <div className="orb orb-2" />
       <div className="stars">
-        {[...Array(15)].map((_, i) => (
+        {stars.map((star) => (
           <div
-            key={i}
+            key={star.id}
             className="star"
             style={{
-              top: `${Math.random() * 100}%`,
-              left: `${Math.random() * 100}%`,
-              animationDelay: `${Math.random() * 3}s`
+              top: `${star.top}%`,
+              left: `${star.left}%`,
+              animationDelay: `${star.delay}s`
             }}
           />
         ))}

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { memo, useState, useMemo, useCallback } from 'react';
 import { cn } from '@/lib/utils';
 import { CATEGORIES, getPresetsByCategory, getCategoryByPresetId } from '@/data';
 import type { Category } from '@/data/categories';
@@ -14,7 +14,7 @@ interface PresetSidebarProps {
   onSelectSubPreset: (subPresetId: string) => void;
 }
 
-function SubPresetItem({
+const SubPresetItem = memo(function SubPresetItem({
   subPreset,
   isSelected,
   onClick
@@ -37,9 +37,9 @@ function SubPresetItem({
       {subPreset.name}
     </button>
   );
-}
+});
 
-function PresetItem({
+const PresetItem = memo(function PresetItem({
   preset,
   selectedSubPreset,
   isExpanded,
@@ -89,9 +89,9 @@ function PresetItem({
       )}
     </div>
   );
-}
+});
 
-function CategorySection({
+const CategorySection = memo(function CategorySection({
   category,
   selectedPreset,
   selectedSubPreset,
@@ -156,7 +156,12 @@ function CategorySection({
       )}
     </div>
   );
-}
+});
+
+// 预缓存所有预设 ID，避免 expandAll 时重复计算
+const ALL_PRESET_IDS = new Set(
+  CATEGORIES.flatMap(cat => getPresetsByCategory(cat.id).map(p => p.id))
+);
 
 export function PresetSidebar({
   selectedCategory,
@@ -166,22 +171,18 @@ export function PresetSidebar({
   onSelectPreset,
   onSelectSubPreset
 }: PresetSidebarProps) {
-  // 使用本地状态管理展开的分类
   const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set());
-
-  // 预设的展开状态：选中的预设自动展开，或者用户手动展开的预设
   const [manuallyExpandedPresets, setManuallyExpandedPresets] = useState<Set<string>>(new Set());
 
-  // 计算实际展开的预设：选中的预设 + 手动展开的预设
-  const expandedPresets = new Set<string>(manuallyExpandedPresets);
-  if (selectedPreset) {
-    expandedPresets.add(selectedPreset);
-  }
+  // 用 useMemo 避免每次渲染都创建新 Set，防止子组件不必要重渲染
+  const expandedPresets = useMemo(() => {
+    if (!selectedPreset) return manuallyExpandedPresets;
+    const set = new Set(manuallyExpandedPresets);
+    set.add(selectedPreset);
+    return set;
+  }, [manuallyExpandedPresets, selectedPreset]);
 
-
-  // 切换分类展开状态
-  const handleToggleCategory = (categoryId: string) => {
-    // 使用 selectedCategory 判断是否已选中，而不是 expandedCategories
+  const handleToggleCategory = useCallback((categoryId: string) => {
     const isSelected = selectedCategory === categoryId;
 
     setExpandedCategories((prev) => {
@@ -195,41 +196,32 @@ export function PresetSidebar({
     });
 
     if (isSelected) {
-      // 已选中状态点击，收起并清空选中
       onSelectCategory('');
     } else {
-      // 未选中状态点击，展开并选中
       onSelectCategory(categoryId);
     }
-  };
+  }, [selectedCategory, onSelectCategory]);
 
-  // 切换预设展开状态（手风琴效果）
-  const handleTogglePreset = (presetId: string) => {
-    // 手风琴效果：点击时只展开当前预设，收起其他预设
+  const handleTogglePreset = useCallback((presetId: string) => {
     setManuallyExpandedPresets(new Set([presetId]));
 
-    // 触发选择
     const categoryId = getCategoryByPresetId(presetId);
     if (categoryId && selectedCategory !== categoryId) {
       onSelectPreset(presetId, categoryId);
     } else if (categoryId) {
       onSelectPreset(presetId);
     }
-  };
+  }, [selectedCategory, onSelectPreset]);
 
-  // 全部展开
-  const expandAll = () => {
+  const expandAll = useCallback(() => {
     setExpandedCategories(new Set(CATEGORIES.map(c => c.id)));
-    // 展开所有预设
-    const allPresets = CATEGORIES.flatMap(cat => getPresetsByCategory(cat.id).map(p => p.id));
-    setManuallyExpandedPresets(new Set(allPresets));
-  };
+    setManuallyExpandedPresets(ALL_PRESET_IDS);
+  }, []);
 
-  // 全部收起
-  const collapseAll = () => {
+  const collapseAll = useCallback(() => {
     setExpandedCategories(new Set());
     setManuallyExpandedPresets(new Set());
-  };
+  }, []);
 
   return (
     <div className="rounded-xl bg-white/[0.08] backdrop-blur-xl border border-white/10 transition-all duration-300 hover:border-purple-500/30">

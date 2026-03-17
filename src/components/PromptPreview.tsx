@@ -1,8 +1,8 @@
+import { memo, useState, useCallback, useRef, useEffect } from "react"
 import { Copy, Check, RotateCcw, Sparkles, Send } from "lucide-react"
 import { Button } from "./ui/button"
 import { Card, CardHeader, CardTitle, CardContent } from "./ui/card"
 import { Textarea } from "./ui/textarea"
-import { useState } from "react"
 
 export interface PromptPreviewProps {
   prompt: string
@@ -11,14 +11,23 @@ export interface PromptPreviewProps {
   onSendToAI?: () => void
 }
 
-export function PromptPreview({ prompt, isOptimized, onRestoreOriginal, onSendToAI }: PromptPreviewProps) {
+export const PromptPreview = memo(function PromptPreview({ prompt, isOptimized, onRestoreOriginal, onSendToAI }: PromptPreviewProps) {
   const [copied, setCopied] = useState(false)
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
-  const handleCopy = async () => {
+  // 组件卸载时清理定时器，防止内存泄漏
+  useEffect(() => {
+    return () => {
+      if (timerRef.current) clearTimeout(timerRef.current)
+    }
+  }, [])
+
+  const handleCopy = useCallback(async () => {
     await navigator.clipboard.writeText(prompt)
     setCopied(true)
-    setTimeout(() => setCopied(false), 2000)
-  }
+    if (timerRef.current) clearTimeout(timerRef.current)
+    timerRef.current = setTimeout(() => setCopied(false), 2000)
+  }, [prompt])
 
   return (
     <Card className="w-full sticky top-4 z-10">
@@ -80,4 +89,4 @@ export function PromptPreview({ prompt, isOptimized, onRestoreOriginal, onSendTo
       </CardContent>
     </Card>
   )
-}
+})

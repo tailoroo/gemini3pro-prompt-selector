@@ -52,43 +52,43 @@ export const ADVANCED_MODE_DIMENSIONS = DIMENSIONS;
 // 模板
 export { TEMPLATES };
 
-/**
- * 根据维度和选项 ID 获取选项
- * @param dimensionKey 维度名称 (style, view, subject 等)
- * @param optionId 选项 ID
- * @returns 选项对象，如果未找到返回 null
- */
-export function getOptionById(dimensionKey: string, optionId: string): PromptOption | null {
-  const dimension = DIMENSIONS.find(d => d.key === dimensionKey);
-  if (!dimension) return null;
+// 模块初始化时构建索引，将查询从 O(D*C*O) 降至 O(1)
+const _optionIndex = new Map<string, Map<string, PromptOption>>();
+const _dimensionIndex = new Map<string, Dimension>();
+const _simpleModeOptionsIndex = new Map<string, PromptOption[]>();
 
-  for (const category of dimension.categories) {
-    const option = category.options.find(o => o.id === optionId);
-    if (option) return option;
-  }
+for (const dimension of DIMENSIONS) {
+  _dimensionIndex.set(dimension.key, dimension);
 
-  return null;
-}
+  const optionMap = new Map<string, PromptOption>();
+  const simpleOptions: PromptOption[] = [];
 
-// 工具函数：根据维度键获取维度
-export function getDimensionByKey(key: string): Dimension | null {
-  return DIMENSIONS.find(d => d.key === key) || null;
-}
-
-// 工具函数：获取简单模式的选项
-export function getSimpleModeOptions(dimensionKey: string): PromptOption[] {
-  const dimension = getDimensionByKey(dimensionKey);
-  if (!dimension) return [];
-
-  const options: PromptOption[] = [];
   for (const category of dimension.categories) {
     for (const option of category.options) {
-      if (option.simple) {
-        options.push(option);
-      }
+      optionMap.set(option.id, option);
+      if (option.simple) simpleOptions.push(option);
     }
   }
-  return options;
+
+  _optionIndex.set(dimension.key, optionMap);
+  _simpleModeOptionsIndex.set(dimension.key, simpleOptions);
+}
+
+/**
+ * 根据维度和选项 ID 获取选项（O(1) 查询）
+ */
+export function getOptionById(dimensionKey: string, optionId: string): PromptOption | null {
+  return _optionIndex.get(dimensionKey)?.get(optionId) ?? null;
+}
+
+// 工具函数：根据维度键获取维度（O(1) 查询）
+export function getDimensionByKey(key: string): Dimension | null {
+  return _dimensionIndex.get(key) ?? null;
+}
+
+// 工具函数：获取简单模式的选项（O(1) 查询）
+export function getSimpleModeOptions(dimensionKey: string): PromptOption[] {
+  return _simpleModeOptionsIndex.get(dimensionKey) ?? [];
 }
 
 // 导出所有维度

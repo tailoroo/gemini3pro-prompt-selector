@@ -1,16 +1,20 @@
 import type { ChatRequest, ChatResponse, ChatMessage } from '@/types/chat';
 
-// API 端点
 const API_ENDPOINT = '/api/chat';
+const REQUEST_TIMEOUT_MS = 30000;
 
 // 发送消息到后端 API
 export async function sendMessage(messages: ChatMessage[]): Promise<ChatResponse> {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
+
   try {
     const response = await fetch(API_ENDPOINT, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
       },
+      signal: controller.signal,
       body: JSON.stringify({
         messages: messages.map(msg => ({
           role: msg.role,
@@ -27,12 +31,21 @@ export async function sendMessage(messages: ChatMessage[]): Promise<ChatResponse
     const data: ChatResponse = await response.json();
     return data;
   } catch (error) {
+    if (error instanceof Error && error.name === 'AbortError') {
+      return {
+        success: false,
+        message: '',
+        error: '请求超时，请稍后重试'
+      };
+    }
     console.error('Chat service error:', error);
     return {
       success: false,
       message: '',
       error: error instanceof Error ? error.message : 'Network error'
     };
+  } finally {
+    clearTimeout(timeoutId);
   }
 }
 
