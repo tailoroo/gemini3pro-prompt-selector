@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import type { UserSelection } from '@/types';
-import { getPresetById, getSubPresetById } from '@/data';
+import { getPresetById, getSubPresetById, getCategoryAndPresetBySubPresetId } from '@/data';
 
 // 初始选择状态
 const initialSelection: UserSelection = {
@@ -31,7 +31,7 @@ interface AppStore {
 
   // Actions
   setCategory: (categoryId: string | null) => void;
-  setPreset: (presetId: string) => void;
+  setPreset: (presetId: string, categoryId?: string) => void;
   setSubPreset: (subPresetId: string) => void;
   toggleOption: (dimension: string, optionId: string) => void;
   setCustomText: (text: string) => void;
@@ -54,14 +54,26 @@ export const useAppStore = create<AppStore>((set, get) => ({
   }),
 
   // 设置预设（自动应用预设配置）
-  setPreset: (presetId) => {
-    const { selectedCategory } = get();
-    if (!selectedCategory) return;
+  setPreset: (presetId, categoryId) => {
+    // 如果 presetId 为空，清空预设选择
+    if (!presetId) {
+      set({
+        selectedPreset: null,
+        selectedSubPreset: null,
+        selection: initialSelection,
+      });
+      return;
+    }
 
-    const preset = getPresetById(selectedCategory, presetId);
+    // 优先使用传入的 categoryId，否则使用当前选中的分类
+    const catId = categoryId || get().selectedCategory;
+    if (!catId) return;
+
+    const preset = getPresetById(catId, presetId);
     if (!preset) return;
 
     set({
+      selectedCategory: catId,
       selectedPreset: presetId,
       selectedSubPreset: null,
       selection: {
@@ -73,8 +85,15 @@ export const useAppStore = create<AppStore>((set, get) => ({
 
   // 设置三级细分
   setSubPreset: (subPresetId) => {
-    const { selectedCategory, selectedPreset } = get();
-    if (!selectedCategory || !selectedPreset) return;
+    let { selectedCategory, selectedPreset } = get();
+
+    // 如果 selectedPreset 为空，尝试根据 subPresetId 找到对应的预设
+    if (!selectedCategory || !selectedPreset) {
+      const result = getCategoryAndPresetBySubPresetId(subPresetId);
+      if (!result) return;
+      selectedCategory = result.categoryId;
+      selectedPreset = result.presetId;
+    }
 
     const subPreset = getSubPresetById(selectedCategory, selectedPreset, subPresetId);
     if (!subPreset) return;
@@ -84,6 +103,8 @@ export const useAppStore = create<AppStore>((set, get) => ({
     const baseSelection = preset?.defaultSelection || {};
 
     set({
+      selectedCategory,
+      selectedPreset,
       selectedSubPreset: subPresetId,
       selection: {
         ...initialSelection,

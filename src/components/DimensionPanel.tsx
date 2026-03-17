@@ -12,8 +12,10 @@ interface DimensionPanelProps {
 
 export function DimensionPanel({ selection, onToggleOption }: DimensionPanelProps) {
   const [isAdvancedMode, setIsAdvancedMode] = useState(false);
-  // 管理展开的维度
-  const [expandedDimensions, setExpandedDimensions] = useState<Set<string>>(new Set());
+  // 管理展开的维度：简单模式默认全部展开，高级模式默认全部收起
+  const [expandedDimensions, setExpandedDimensions] = useState<Set<string>>(
+    () => new Set(SIMPLE_MODE_DIMENSIONS.map(d => d.key))
+  );
 
   const dimensions = isAdvancedMode ? ADVANCED_MODE_DIMENSIONS : SIMPLE_MODE_DIMENSIONS;
 
@@ -40,10 +42,16 @@ export function DimensionPanel({ selection, onToggleOption }: DimensionPanelProp
     setExpandedDimensions(new Set());
   };
 
-  // 切换模式时重置展开状态
+  // 切换模式时设置展开状态：简单模式全部展开，高级模式全部收起
   const handleModeChange = (advanced: boolean) => {
     setIsAdvancedMode(advanced);
-    setExpandedDimensions(new Set());
+    if (advanced) {
+      // 高级模式：全部收起
+      setExpandedDimensions(new Set());
+    } else {
+      // 简单模式：全部展开
+      setExpandedDimensions(new Set(dimensions.map(d => d.key)));
+    }
   };
 
   return (

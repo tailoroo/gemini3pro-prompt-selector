@@ -1,4 +1,4 @@
-import { Copy, Check, X, RotateCcw, Sparkles } from "lucide-react"
+import { Copy, Check, RotateCcw, Sparkles } from "lucide-react"
 import { Button } from "./ui/button"
 import { Card, CardHeader, CardTitle, CardContent } from "./ui/card"
 import { Textarea } from "./ui/textarea"
@@ -6,12 +6,11 @@ import { useState } from "react"
 
 export interface PromptPreviewProps {
   prompt: string
-  onClear: () => void
   isOptimized?: boolean
   onRestoreOriginal?: () => void
 }
 
-export function PromptPreview({ prompt, onClear, isOptimized, onRestoreOriginal }: PromptPreviewProps) {
+export function PromptPreview({ prompt, isOptimized, onRestoreOriginal }: PromptPreviewProps) {
   const [copied, setCopied] = useState(false)
 
   const handleCopy = async () => {
@@ -46,15 +45,6 @@ export function PromptPreview({ prompt, onClear, isOptimized, onRestoreOriginal 
               恢复原始
             </Button>
           )}
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={onClear}
-            className="gap-2"
-          >
-            <X className="h-4 w-4" />
-            清空
-          </Button>
           <Button
             variant="default"
             size="sm"

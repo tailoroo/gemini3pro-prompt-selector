@@ -15,8 +15,7 @@ export default function App() {
     setCategory,
     setPreset,
     setSubPreset,
-    toggleOption,
-    clearAll
+    toggleOption
   } = useAppStore()
 
   const { prompt, negativePrompt } = usePromptGenerator()
@@ -26,12 +25,6 @@ export default function App() {
 
   // 实际显示的提示词（优先使用优化后的）
   const displayPrompt = optimizedPrompt || prompt
-
-  // 当选择改变时清除优化结果
-  const handleClearAll = () => {
-    clearAll()
-    setOptimizedPrompt(null)
-  }
 
   // 应用 AI 优化的提示词
   const handleApplyPrompt = (newPrompt: string) => {
@@ -44,20 +37,20 @@ export default function App() {
   }
 
   const handleSelectCategory = (categoryId: string) => {
-    if (selectedCategory === categoryId) {
-      // 如果点击已选中的分类，收起它
+    if (!categoryId || selectedCategory === categoryId) {
+      // 如果传入空字符串或点击已选中的分类，收起它
       setCategory(null)
     } else {
       setCategory(categoryId)
     }
   }
 
-  const handleSelectPreset = (presetId: string) => {
+  const handleSelectPreset = (presetId: string, categoryId?: string) => {
     if (selectedPreset === presetId) {
       // 如果点击已展开的预设，收起它
       setPreset('')
     } else {
-      setPreset(presetId)
+      setPreset(presetId, categoryId)
     }
   }
 
@@ -89,7 +82,6 @@ export default function App() {
             {/* 左栏：提示词预览 */}
             <PromptPreview
               prompt={displayPrompt}
-              onClear={handleClearAll}
               isOptimized={!!optimizedPrompt}
               onRestoreOriginal={handleRestoreOriginal}
             />
@@ -113,11 +105,12 @@ export default function App() {
 
       {/* 两栏布局：预设选择 + 维度选择 */}
       <div className="max-w-7xl mx-auto px-4 py-6 relative z-10">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
           {/* 左栏：预设选择 */}
           <div className="lg:col-span-4">
-            <div className="sticky top-[340px]">
+            <div className="lg:sticky lg:top-[340px]">
               <PresetSidebar
+                selectedCategory={selectedCategory}
                 selectedPreset={selectedPreset}
                 selectedSubPreset={selectedSubPreset}
                 onSelectCategory={handleSelectCategory}

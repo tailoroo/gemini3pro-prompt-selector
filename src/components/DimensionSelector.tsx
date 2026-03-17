@@ -82,7 +82,7 @@ export function DimensionSelector({
         <div className="space-y-3 pl-5">
           {dimension.categories.map((category) => (
             <div key={category.category} className="space-y-1">
-              <span className="text-xs text-slate-500">{category.name}</span>
+              <span className="inline-block px-3 py-1.5 rounded-md bg-white/5 text-slate-200 font-medium text-sm">{category.name}</span>
               <div className="flex flex-wrap gap-2">
                 {category.options.map((option) => (
                   <OptionChip

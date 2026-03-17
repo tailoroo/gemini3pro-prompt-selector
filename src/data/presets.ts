@@ -2396,6 +2396,17 @@ export function getPresetById(categoryId: string, presetId: string): Preset | un
   return presets?.find(p => p.id === presetId);
 }
 
+// 根据 presetId 获取所属的 categoryId
+export function getCategoryByPresetId(presetId: string): string | null {
+  for (const categoryId of Object.keys(PRESETS)) {
+    const presets = PRESETS[categoryId];
+    if (presets?.some(p => p.id === presetId)) {
+      return categoryId;
+    }
+  }
+  return null;
+}
+
 // 根据 ID 获取三级细分
 export function getSubPresetById(
   categoryId: string,
@@ -2404,4 +2415,19 @@ export function getSubPresetById(
 ): SubPreset | undefined {
   const preset = getPresetById(categoryId, presetId);
   return preset?.subPresets.find(s => s.id === subPresetId);
+}
+
+// 根据 subPresetId 获取所属的 categoryId 和 presetId
+export function getCategoryAndPresetBySubPresetId(subPresetId: string): { categoryId: string; presetId: string } | null {
+  for (const categoryId of Object.keys(PRESETS)) {
+    const presets = PRESETS[categoryId];
+    if (presets) {
+      for (const preset of presets) {
+        if (preset.subPresets?.some(s => s.id === subPresetId)) {
+          return { categoryId, presetId: preset.id };
+        }
+      }
+    }
+  }
+  return null;
 }

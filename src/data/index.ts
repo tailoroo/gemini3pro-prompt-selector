@@ -19,7 +19,7 @@ import { TEMPLATES } from './templates';
 // 导出分类和预设
 export { CATEGORIES, getCategoryById } from './categories';
 export type { Category } from './categories';
-export { PRESETS, getPresetsByCategory, getPresetById, getSubPresetById } from './presets';
+export { PRESETS, getPresetsByCategory, getPresetById, getSubPresetById, getCategoryByPresetId, getCategoryAndPresetBySubPresetId } from './presets';
 export type { Preset, SubPreset, PresetsByCategory } from './presets';
 
 // 所有维度数据
