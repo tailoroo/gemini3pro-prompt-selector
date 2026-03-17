@@ -67,7 +67,7 @@ export default function App() {
   }, [selectedPreset, setPreset])
 
   return (
-    <div className="min-h-screen bg-background relative overflow-hidden">
+    <div className="min-h-screen bg-background relative overflow-x-hidden">
       {/* 背景效果 */}
       <div className="grid-bg" />
       <div className="orb orb-1" />
