@@ -1,73 +1,77 @@
-# React + TypeScript + Vite
+# AI 图像生成提示词选择器
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+一个用于快速构建 AI 图像生成提示词的可视化工具，支持多种维度选择和 AI 智能优化。
 
-Currently, two official plugins are available:
+## 功能特性
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- **预设模板**：内置多种风格预设，快速开始创作
+- **多维度选择**：
+  - 主体（人物、动物、场景等）
+  - 风格（写实、动漫、插画等）
+  - 视角与构图
+  - 光照效果
+  - 色彩方案
+  - 氛围与情绪
+  - 画质与细节
+  - 特效
+  - 服装与材质
+  - 天气与时间
+- **AI 优化**：集成 DeepSeek API，一键优化提示词
+- **实时预览**：选择即生成，所见即所得
+- **一键复制**：快速复制生成的提示词
 
-## React Compiler
+## 技术栈
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- React 19
+- TypeScript
+- Vite
+- Tailwind CSS
+- Zustand（状态管理）
+- DeepSeek API（AI 优化）
 
-## Expanding the ESLint configuration
+## 本地开发
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+```bash
+# 安装依赖
+npm install
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+# 启动开发服务器
+npm run dev
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+# 构建生产版本
+npm run build
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## 环境变量配置
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+创建 `.env.local` 文件：
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
 ```
+DEEPSEEK_API_KEY=your_api_key_here
+```
+
+## 部署
+
+项目可部署到 Vercel、Netlify 等平台：
+
+```bash
+# Vercel
+vercel
+
+# 或连接 GitHub 仓库自动部署
+```
+
+## 使用方法
+
+1. **选择预设**：在左侧面板选择一个风格预设
+2. **调整维度**：在右侧面板选择各项参数
+3. **查看提示词**：顶部实时显示生成的提示词
+4. **AI 优化**（可选）：
+   - 在右侧 AI 优化面板编辑或添加优化需求
+   - 点击「优化」按钮获取 AI 建议
+   - 点击「应用此提示词」使用优化结果
+5. **复制使用**：点击「复制」按钮，粘贴到 AI 绘图工具
+
+## 许可证
+
+MIT
