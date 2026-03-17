@@ -87,7 +87,7 @@ export default function App() {
       </div>
 
       {/* 内容区域 */}
-      <div className="fixed top-0 left-0 right-0 z-20 bg-black/30 backdrop-blur-xl border-b border-white/10 px-4 py-4">
+      <div className="sticky top-0 z-20 bg-black/30 backdrop-blur-xl border-b border-white/10 px-4 py-4">
         <div className="max-w-7xl mx-auto relative z-10">
           {/* 左右两栏布局：提示词预览 + AI 优化 */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
@@ -119,11 +119,11 @@ export default function App() {
       </div>
 
       {/* 两栏布局：预设选择 + 维度选择 */}
-      <div className="max-w-7xl mx-auto px-4 py-6 pt-52 relative z-10">
+      <div className="max-w-7xl mx-auto px-4 py-6 relative z-10">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
           {/* 左栏：预设选择 */}
           <div className="lg:col-span-4">
-            <div className="lg:sticky lg:top-[220px]">
+            <div className="lg:sticky lg:top-[340px]">
               <PresetSidebar
                 selectedCategory={selectedCategory}
                 selectedPreset={selectedPreset}
