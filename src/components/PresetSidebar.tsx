@@ -86,19 +86,19 @@ function PresetItem({
 
 function CategorySection({
   category,
-  selectedPreset,
   selectedSubPreset,
   isExpanded,
+  expandedPresets,
   onToggleCategory,
-  onSelectPreset,
+  onTogglePreset,
   onSelectSubPreset
 }: {
   category: Category;
-  selectedPreset: string | null;
   selectedSubPreset: string | null;
   isExpanded: boolean;
+  expandedPresets: Set<string>;
   onToggleCategory: () => void;
-  onSelectPreset: (presetId: string) => void;
+  onTogglePreset: (presetId: string) => void;
   onSelectSubPreset: (subPresetId: string) => void;
 }) {
   const Icon = category.icon;
@@ -140,8 +140,8 @@ function CategorySection({
               key={preset.id}
               preset={preset}
               selectedSubPreset={selectedSubPreset}
-              isExpanded={selectedPreset === preset.id}
-              onToggle={() => onSelectPreset(preset.id)}
+              isExpanded={expandedPresets.has(preset.id)}
+              onToggle={() => onTogglePreset(preset.id)}
               onSelectSubPreset={onSelectSubPreset}
             />
           ))}
@@ -152,15 +152,17 @@ function CategorySection({
 }
 
 export function PresetSidebar({
-  selectedPreset,
   selectedSubPreset,
   onSelectCategory: _onSelectCategory,
-  onSelectPreset,
+  onSelectPreset: _onSelectPreset,
   onSelectSubPreset
 }: PresetSidebarProps) {
-  // 使用本地状态管理展开的分类（支持多个同时展开）
+  // 使用本地状态管理展开的分类
   const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set());
+  // 使用本地状态管理展开的预设（二级菜单）
+  const [expandedPresets, setExpandedPresets] = useState<Set<string>>(new Set());
 
+  // 切换分类展开状态
   const handleToggleCategory = (categoryId: string) => {
     setExpandedCategories((prev) => {
       const newSet = new Set(prev);
@@ -173,14 +175,31 @@ export function PresetSidebar({
     });
   };
 
+  // 切换预设展开状态
+  const handleTogglePreset = (presetId: string) => {
+    setExpandedPresets((prev) => {
+      const newSet = new Set(prev);
+      if (newSet.has(presetId)) {
+        newSet.delete(presetId);
+      } else {
+        newSet.add(presetId);
+      }
+      return newSet;
+    });
+  };
+
   // 全部展开
   const expandAll = () => {
     setExpandedCategories(new Set(CATEGORIES.map(c => c.id)));
+    // 展开所有预设
+    const allPresets = CATEGORIES.flatMap(cat => getPresetsByCategory(cat.id).map(p => p.id));
+    setExpandedPresets(new Set(allPresets));
   };
 
   // 全部收起
   const collapseAll = () => {
     setExpandedCategories(new Set());
+    setExpandedPresets(new Set());
   };
 
   return (
@@ -207,11 +226,11 @@ export function PresetSidebar({
         <CategorySection
           key={category.id}
           category={category}
-          selectedPreset={selectedPreset}
           selectedSubPreset={selectedSubPreset}
           isExpanded={expandedCategories.has(category.id)}
+          expandedPresets={expandedPresets}
           onToggleCategory={() => handleToggleCategory(category.id)}
-          onSelectPreset={onSelectPreset}
+          onTogglePreset={handleTogglePreset}
           onSelectSubPreset={onSelectSubPreset}
         />
       ))}

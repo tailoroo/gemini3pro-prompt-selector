@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { Sparkles, Loader2, ArrowRight } from 'lucide-react';
+import { useState } from 'react';
+import { Sparkles, Loader2, Copy, Check } from 'lucide-react';
 import { Button } from './ui/button';
 import { Card, CardHeader, CardTitle, CardContent } from './ui/card';
 import { Textarea } from './ui/textarea';
@@ -13,24 +13,18 @@ interface ChatPanelProps {
 }
 
 export function ChatPanel({
-  currentPrompt,
+  currentPrompt: _currentPrompt,
   onApplyPrompt: _onApplyPrompt
 }: ChatPanelProps) {
-  const [inputValue, setInputValue] = useState(currentPrompt);
+  const [inputValue, setInputValue] = useState('');
   const [optimizedResult, setOptimizedResult] = useState<string | null>(null);
+  const [copied, setCopied] = useState(false);
   const {
     isLoading,
     error,
     setLoading,
     setError
   } = useChatStore();
-
-  // 当 currentPrompt 变化时更新输入框
-  useEffect(() => {
-    if (!optimizedResult) {
-      setInputValue(currentPrompt);
-    }
-  }, [currentPrompt, optimizedResult]);
 
   // 发送优化请求
   const handleOptimize = async () => {
@@ -41,7 +35,7 @@ export function ChatPanel({
     setOptimizedResult(null);
 
     try {
-      const optimizeRequest = `请帮我优化这个提示词，让它更加专业和有表现力。只返回优化后的提示词内容，不要添加任何解释或说明：\n\n"${inputValue}"`;
+      const optimizeRequest = `请帮我优化这个提示词：\n\n"${inputValue}"`;
 
       const chatMessages: ChatMessageType[] = [
         {
@@ -66,18 +60,18 @@ export function ChatPanel({
     }
   };
 
-  // 应用优化结果到输入框
-  const handleApply = () => {
+  // 复制优化结果
+  const handleCopy = async () => {
     if (optimizedResult) {
-      setInputValue(optimizedResult);
-      setOptimizedResult(null);
+      await navigator.clipboard.writeText(optimizedResult);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
     }
   };
 
   // 清空优化结果
   const handleClearResult = () => {
     setOptimizedResult(null);
-    setInputValue(currentPrompt);
   };
 
   return (
@@ -141,11 +135,20 @@ export function ChatPanel({
               </div>
             </div>
             <Button
-              onClick={handleApply}
+              onClick={handleCopy}
               className="w-full gap-2 bg-gradient-to-r from-violet-500 to-purple-500 hover:from-violet-600 hover:to-purple-600"
             >
-              <ArrowRight className="w-4 h-4" />
-              应用此提示词
+              {copied ? (
+                <>
+                  <Check className="w-4 h-4" />
+                  已复制!
+                </>
+              ) : (
+                <>
+                  <Copy className="w-4 h-4" />
+                  复制提示词
+                </>
+              )}
             </Button>
           </div>
         )}
