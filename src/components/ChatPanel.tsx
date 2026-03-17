@@ -1,8 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Sparkles, Loader2, Copy, Check } from 'lucide-react';
 import { Button } from './ui/button';
 import { Card, CardHeader, CardTitle, CardContent } from './ui/card';
-import { Textarea } from './ui/textarea';
 import { useChatStore } from '@/store/useChatStore';
 import { sendMessage } from '@/services/chatService';
 import type { ChatMessage as ChatMessageType } from '@/types/chat';
@@ -23,6 +22,7 @@ export function ChatPanel({
   const [internalInputValue, setInternalInputValue] = useState('');
   const [optimizedResult, setOptimizedResult] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
+  const inputRef = useRef<HTMLTextAreaElement>(null);
 
   // 当 currentPrompt 变化且没有外部输入控制时，用其初始化输入框
   useEffect(() => {
@@ -34,6 +34,14 @@ export function ChatPanel({
   // 使用外部值或内部值
   const inputValue = externalOnInputChange ? externalInputValue : internalInputValue;
   const setInputValue = externalOnInputChange || setInternalInputValue;
+
+  // 输入框随内容自动撑高
+  useEffect(() => {
+    const el = inputRef.current;
+    if (!el) return;
+    el.style.height = 'auto';
+    el.style.height = el.scrollHeight + 'px';
+  }, [inputValue]);
 
   const {
     isLoading,
@@ -91,7 +99,7 @@ export function ChatPanel({
   };
 
   return (
-    <Card className="w-full h-full flex flex-col">
+    <Card className="w-full">
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
         <CardTitle className="text-lg bg-gradient-to-r from-emerald-300 via-teal-300 to-cyan-300 bg-clip-text text-transparent">
           AI 优化
@@ -117,12 +125,14 @@ export function ChatPanel({
         </Button>
       </CardHeader>
 
-      <CardContent className="flex-1 flex flex-col gap-3 overflow-hidden">
-        <Textarea
+      <CardContent className="flex flex-col gap-3">
+        <textarea
+          ref={inputRef}
           value={inputValue}
           onChange={(e) => setInputValue(e.target.value)}
           placeholder="输入提示词或优化需求..."
-          className="min-h-[120px] font-mono text-sm resize-none"
+          rows={1}
+          className="w-full font-mono text-sm resize-none overflow-hidden bg-transparent border border-white/10 rounded-md px-3 py-2 text-slate-200 placeholder:text-slate-500 focus:outline-none focus:ring-1 focus:ring-white/20 disabled:opacity-50"
           disabled={isLoading}
         />
 
@@ -135,7 +145,7 @@ export function ChatPanel({
 
         {/* 优化结果 */}
         {optimizedResult && (
-          <div className="flex-1 flex flex-col gap-2 min-h-0">
+          <div className="flex flex-col gap-2">
             <label className="text-xs text-slate-400 flex items-center justify-between">
               <span>AI 优化结果</span>
               <button
@@ -145,29 +155,25 @@ export function ChatPanel({
                 清除
               </button>
             </label>
-            <div className="flex-1 overflow-auto">
-              <div className="p-3 bg-white/5 border border-emerald-500/30 rounded-lg text-sm text-slate-200 whitespace-pre-wrap">
-                {optimizedResult}
-              </div>
+            <div className="p-3 bg-white/5 border border-emerald-500/30 rounded-lg text-sm text-slate-200 whitespace-pre-wrap">
+              {optimizedResult}
             </div>
-            <div className="flex gap-2">
-              <Button
-                onClick={handleCopy}
-                className="flex-1 gap-2 bg-gradient-to-r from-violet-500 to-purple-500 hover:from-violet-600 hover:to-purple-600"
-              >
-                {copied ? (
-                  <>
-                    <Check className="w-4 h-4" />
-                    已复制!
-                  </>
-                ) : (
-                  <>
-                    <Copy className="w-4 h-4" />
-                    复制提示词
-                  </>
-                )}
-              </Button>
-            </div>
+            <Button
+              onClick={handleCopy}
+              className="gap-2 bg-gradient-to-r from-violet-500 to-purple-500 hover:from-violet-600 hover:to-purple-600"
+            >
+              {copied ? (
+                <>
+                  <Check className="w-4 h-4" />
+                  已复制!
+                </>
+              ) : (
+                <>
+                  <Copy className="w-4 h-4" />
+                  复制提示词
+                </>
+              )}
+            </Button>
           </div>
         )}
       </CardContent>
