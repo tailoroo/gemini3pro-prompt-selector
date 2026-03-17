@@ -92,14 +92,14 @@ export const useAppStore = create<AppStore>((set, get) => ({
       const result = getCategoryAndPresetBySubPresetId(subPresetId);
       if (!result) return;
       selectedCategory = result.categoryId;
-      selectedPreset = result.presetId;
+      selectedPreset = result.preset.id;
     }
 
-    const subPreset = getSubPresetById(selectedCategory, selectedPreset, subPresetId);
+    const subPreset = getSubPresetById(selectedCategory, selectedPreset!, subPresetId);
     if (!subPreset) return;
 
     // 先应用预设的默认配置，再应用三级细分的配置
-    const preset = getPresetById(selectedCategory, selectedPreset);
+    const preset = getPresetById(selectedCategory, selectedPreset!);
     const baseSelection = preset?.defaultSelection || {};
 
     set({
